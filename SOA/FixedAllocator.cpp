@@ -26,7 +26,7 @@ otherwise we will search for a free chunk in the chunks_ vector, if we can't fin
 ***************************************************************************/
 void* FixedAllocator::Allocate() 
 {
-    if (m_allocChunk_ == 0 || m_allocChunk_->blocksAvailable_ == 0)
+    if (m_allocChunk_ == nullptr || m_allocChunk_->blocksAvailable_ == 0)
     {
         // No available memory in this chunk 
         // Try to find one 
