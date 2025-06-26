@@ -2,7 +2,10 @@
 //
 
 #include <iostream>
+#include <time.h>
+#include <chrono>
 
+#define AMOUNT_OF_ALLOCATION 4096
 
 // MyClass.h
 #include "SmallObject.h"
@@ -14,51 +17,61 @@ private:
     int data[10];
 
 public:
-    MySmallClass() { }
+    MySmallClass() = default;
     void doSomething() { }
 };
 
-// Uso personalizzato con parametri specifici
-class MyCustomClass : public SmallObject<8192,128>
-{
-private:
-    char buffer[100];
-
-public:
-    MyCustomClass() {}
-};
-
-// La stessa identica sintassi, ma usa ::operator new standard
-class MyNormalClass : public SmallObject<0,0>
+class MyNormalClass
 {
 private:
     int data[10];
 
 public:
-    MyNormalClass() { /* costruttore */ }
+    MyNormalClass() = default;
     void doSomething() { /* logica */ }
 };
 
+
+
+
 int main()
 {
-    // Usa small allocator (se abilitato)
-    MySmallClass* obj1 = new MySmallClass();
-    delete obj1;
-
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    
+	//NORMAL ALLOCATOR USAGE EXAMPLE
+	std::vector<MyNormalClass*> normal_Objects;
     // Usa allocatore standard (se disabilitato con #define)
-    MyNormalClass* obj2 = new MyNormalClass();
-    delete obj2;
-
-    // Array di oggetti
-    std::vector<MySmallClass*> objects;
-    for (int i = 0; i < 1000; ++i) {
-        objects.push_back(new MySmallClass());
-    }
-
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
+        normal_Objects.push_back(new MyNormalClass());
+    }  
+    
     // Cleanup
-    for (auto* obj : objects) {
+    for (auto* obj : normal_Objects) {
         delete obj;  // Deallocazione ottimizzata automatica
     }
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Time difference in Normal Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+
+
+    
+    std::chrono::steady_clock::time_point begin1 = std::chrono::steady_clock::now();
+	//SMALL OBJECT ALLOCATOR USAGE EXAMPLE
+    std::vector<MySmallClass*> small_Objects;
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
+        small_Objects.push_back(new MySmallClass());
+    }
+
+    
+    
+    // Cleanup
+    for (auto* obj : small_Objects) {
+        delete obj;  // Deallocazione ottimizzata automatica
+    }
+
+    std::chrono::steady_clock::time_point end1 = std::chrono::steady_clock::now();
+    std::cout << "Time difference in smallObject Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end1 - begin1) / 1000).count() << "[ns]" << std::endl;
+
 
     return 0;
 }

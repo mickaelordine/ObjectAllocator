@@ -125,7 +125,6 @@
   <ItemGroup>
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="FixedAllocator.cpp" />
-    <ClCompile Include="SmallObject.cpp" />
     <ClCompile Include="SmallObjectAllocator.cpp" />
     <ClCompile Include="SOA.cpp" />
   </ItemGroup>

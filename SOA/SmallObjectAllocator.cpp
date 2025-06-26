@@ -60,7 +60,7 @@ void SmallObjectAllocator::Deallocate(void* p, std::size_t size)
 	assert(size > 0);
 
 	// If the size is larger than the maximum object size, forward to global delete operator
-	if (size > m_maxObjectSize) { ::operator delete(p); return; }
+	if (size > m_maxObjectSize) { free(p); return; }
 
 	// check if m_pLastDealloc_ is not nullptr and if it has enough space to deallocate the requested size
 	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(p); }
@@ -71,7 +71,7 @@ void SmallObjectAllocator::Deallocate(void* p, std::size_t size)
 		if (allocator.GetBlockSize() == size) 
 		{
 			allocator.Deallocate(p); // Deallocate the memory block using the found allocator
-			m_pLastDealloc_ = &allocator; // Store the last allocator used for deallocation
+			m_pLastDealloc_ = &allocator;
 			return;
 		}
 	}

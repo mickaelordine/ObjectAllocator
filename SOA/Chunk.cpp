@@ -36,7 +36,7 @@ void* Chunk::Allocate(std::size_t blockSize)
 	unsigned char* pResult = pData_ + (firstAvailableBlock_ * blockSize); //basic pointer arithmetic to get the address of the first available block
 
     // Update firstAvailableBlock_ to point to the next block
-    firstAvailableBlock_ = *pResult;
+    firstAvailableBlock_ = *pResult; //pResult al suo interno tiene l'informazione del prossimo blocco libero a livello di indice
     --blocksAvailable_;
 
     return pResult;
