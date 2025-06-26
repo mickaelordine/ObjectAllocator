@@ -1,13 +1,17 @@
+//////////////////////////////////////////////
+//              FixedAllocator.h            //
+//////////////////////////////////////////////
+
 #pragma once
 #include <cstddef>
 #include <vector>
 #include "Chunk.h"
 
 #define DEFAULT_CHUNK_SIZE 4096 // 4kb is our fixed allocator's chunk size upper limit.
-#define MAX_BLOCK_SIZE 1024 // Maximum size of a block in bytes
+#define MAX_BLOCK_SIZE 64 // Maximum size of a block in bytes
 
 // Forward declaration of Chunk class
-class Chunk;
+struct Chunk;
 
 class FixedAllocator
 {

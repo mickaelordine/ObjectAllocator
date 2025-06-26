@@ -18,13 +18,20 @@ SmallObjectAllocator::SmallObjectAllocator(std::size_t chunkSize, std::size_t ma
 	m_pLastAlloc_ = m_pLastDealloc_ = nullptr;
 }
 
+SmallObjectAllocator& SmallObjectAllocator::GetInstance(std::size_t chunkSize, std::size_t maxObjectSize) 
+{
+	static SmallObjectAllocator instance(chunkSize, maxObjectSize); // Create a static instance of the SmallObjectAllocator, and we don't need to check if already exist because it is static
+	return instance; 
+}
+
+
 /***************************************************************************
 params : numBytes -> is the number of bytes to allocate.
 returns : void* -> pointer to the allocated memory block.
 ***************************************************************************/
 void* SmallObjectAllocator::Allocate(std::size_t numBytes) 
 {
-	if (numBytes > m_maxObjectSize) { return ::operator new(numBytes); } // Forward to global new operator for large objects, to substitute it with BigObjAllocator
+	if (numBytes > m_maxObjectSize) { return malloc(numBytes); } // Forward to global new operator for large objects, to substitute it with BigObjAllocator
 
 
 	// check m_pLastAlloc_ to see if it is nullptr or if it has enough space to allocate the requested size
@@ -35,10 +42,9 @@ void* SmallObjectAllocator::Allocate(std::size_t numBytes)
 
 	// If m_pLastAlloc_ is nullptr or does not have enough space, create a new FixedAllocator
 	FixedAllocator allocator(numBytes);
-	allocator.Allocate(); // Allocate the memory block
-	m_pLastAlloc_ = &allocator; // Store the last allocator used for allocation
 	m_pool_.push_back(allocator); // Store the allocator in the pool for future use
-	return &allocator;
+	m_pLastAlloc_ = &m_pool_.back(); // Set the last allocator to the newly created one
+	return m_pLastAlloc_->Allocate();
 }
 
 /***************************************************************************
