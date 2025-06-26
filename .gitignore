@@ -1,0 +1,20 @@
+# Dipendenze
+node_modules/
+*.log
+
+# File di ambiente
+.env
+.env.local
+
+# File di build
+dist/
+build/
+
+# File IDE
+.vs/
+*.suo
+*.user
+
+# File temporanei
+*.tmp
+*~
