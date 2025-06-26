@@ -60,4 +60,13 @@ void SmallObjectAllocator::Deallocate(void* p, std::size_t size)
 	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(p); }
 
 	// If m_pLastDealloc_ is nullptr or the size is different, search for the allocator in the pool that can handle the size and deallocate it
+	for(auto& allocator : m_pool_) 
+	{
+		if (allocator.GetBlockSize() == size) 
+		{
+			allocator.Deallocate(p); // Deallocate the memory block using the found allocator
+			m_pLastDealloc_ = &allocator; // Store the last allocator used for deallocation
+			return;
+		}
+	}
 }
