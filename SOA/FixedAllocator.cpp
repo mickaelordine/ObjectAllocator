@@ -36,7 +36,7 @@ void* FixedAllocator::Allocate()
             if (i == m_chunks_.end())
             {
                 // All filled up-add a new chunk 
-                m_chunks_.reserve(m_chunks_.size() + 1);
+				m_chunks_.reserve(m_chunks_.size() * 2); //double the capacity, not only add 1
                 Chunk newChunk;
                 newChunk.Init(m_blockSize_, m_numBlocks_);
                 m_chunks_.push_back(newChunk);
@@ -59,8 +59,8 @@ void* FixedAllocator::Allocate()
 }
 
 /***************************************************************************
-- explanation : this function deallocate a memBlock of a Chunk, to do that it start searching in the last deallocated chunk, if it is not null, 
-otherwise it will search in the chunks_ vector. A better version could search around the dealloc chunk instead of linearly search inside through all chunks, to see...
+- explanation : this function deallocate a memBlock of a Chunk, to do that it start searching in the last deallocated chunk, then we check around the m_deallocPtr, 
+otherwise it will search in the chunks_ vector.
 - params : the pointer to the memory block to be deallocated, the ptr is a block address inside a chunk, so we need to find the chunk that contains this block and deallocate it.
 - returns : void
 ***************************************************************************/
@@ -69,11 +69,44 @@ void FixedAllocator::Deallocate(void* ptr)
 	assert(ptr != nullptr);
 
 	// start with deallocChunk_ if it is not null
-    if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) {
+    if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) 
+    {
         m_deallocChunk_->Deallocate(ptr, m_blockSize_);
         return;
     }
+    
+    // Trova l'iteratore corrente corrispondente a m_deallocChunk_
+    auto it = std::find_if(m_chunks_.begin(), m_chunks_.end(),
+        [this](const Chunk& c) { return &c == m_deallocChunk_; });
 
+    if (it != m_chunks_.end())
+    {
+        // Check next chunk
+        auto next = it + 1;
+        if (next != m_chunks_.end() &&
+            ptr >= next->pData_ &&
+            ptr < next->pData_ + m_blockSize_ * m_numBlocks_)
+        {
+            next->Deallocate(ptr, m_blockSize_);
+            m_deallocChunk_ = &*next;
+            return;
+        }
+
+        // Check previous chunk
+        if (it != m_chunks_.begin())
+        {
+            auto prev = it - 1;
+            if (ptr >= prev->pData_ &&
+                ptr < prev->pData_ + m_blockSize_ * m_numBlocks_)
+            {
+                prev->Deallocate(ptr, m_blockSize_);
+                m_deallocChunk_ = &*prev;
+                return;
+            }
+        }
+    }
+
+    //otherwise search for the chunk
     Chunks::iterator i = m_chunks_.begin();
     for (;; i++) 
     {

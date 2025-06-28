@@ -7,8 +7,9 @@
 #include <vector>
 #include "Chunk.h"
 
-#define DEFAULT_CHUNK_SIZE 4096 // 4kb is our fixed allocator's chunk size upper limit.
-#define MAX_BLOCK_SIZE 64 // Maximum size of a block in bytes
+
+#define DEFAULT_CHUNK_SIZE 8192 //8192 //4096 // 4kb is our fixed allocator's chunk size upper limit.
+#define MAX_BLOCK_SIZE 128 //256 //128 //64 // Maximum size of a block in bytes
 
 // Forward declaration of Chunk class
 struct Chunk;

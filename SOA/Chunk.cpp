@@ -42,6 +42,8 @@ void* Chunk::Allocate(std::size_t blockSize)
     return pResult;
 }
 
+
+// COST: the deallocation cost is O(1), using poiter's arithmetic
 /***************************************************************************
 params : blockSize -> the size of each block in the chunk
 		 p -> the address of the block we want to deallocate
@@ -54,13 +56,10 @@ void Chunk::Deallocate(void* p, std::size_t blockSize)
     // Alignment check 
     assert((toRelease - pData_) % blockSize == 0);
     *toRelease = firstAvailableBlock_;
-    firstAvailableBlock_ = static_cast<unsigned char>(
-        (toRelease - pData_) / blockSize);
+    firstAvailableBlock_ = static_cast<unsigned char>((toRelease - pData_) / blockSize);
     // Truncation check 
-    assert(firstAvailableBlock_ ==
-        (toRelease - pData_) / blockSize);
+    assert(firstAvailableBlock_ == (toRelease - pData_) / blockSize);
     ++blocksAvailable_;
 }
-
 
 

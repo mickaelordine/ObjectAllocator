@@ -52,27 +52,54 @@ params : p -> is the pointer to the memory block to deallocate,
 		 size -> is the size of the object being deallocated.
 returns : void -> no return value, the memory block is deallocated.
 ***************************************************************************/
-void SmallObjectAllocator::Deallocate(void* p, std::size_t size) 
+void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size) 
 {
 	// Check if the pointer is valid and if the size is within the limits
-	assert(p != nullptr);
+	assert(ptr != nullptr);
 	assert(size <= m_maxObjectSize);
 	assert(size > 0);
 
 	// If the size is larger than the maximum object size, forward to global delete operator
-	if (size > m_maxObjectSize) { free(p); return; }
+	if (size > m_maxObjectSize) { free(ptr); return; }
 
 	// check if m_pLastDealloc_ is not nullptr and if it has enough space to deallocate the requested size
-	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(p); }
+	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(ptr); return; }
 
-	// If m_pLastDealloc_ is nullptr or the size is different, search for the allocator in the pool that can handle the size and deallocate it
-	for(auto& allocator : m_pool_) 
-	{
-		if (allocator.GetBlockSize() == size) 
-		{
-			allocator.Deallocate(p); // Deallocate the memory block using the found allocator
-			m_pLastDealloc_ = &allocator;
-			return;
-		}
-	}
+    //find the iterator for FixedAlloc
+    auto it = std::find_if(m_pool_.begin(), m_pool_.end(),
+        [this](const FixedAllocator& alloc) { return &alloc == m_pLastDealloc_; });
+
+    //search in the previous sizes
+    if (it != m_pool_.begin()) {
+        auto prev = it - 1;
+        if (prev->GetBlockSize() == size)
+        {
+            prev->Deallocate(ptr);
+            m_pLastDealloc_ = &*prev;
+            return;
+        }
+    }
+
+    //search in the next sizes
+    if (it != m_pool_.end()) {
+        auto next = it + 1;
+        if (next->GetBlockSize() == size)
+        {
+            next->Deallocate(ptr);
+            m_pLastDealloc_ = &*next;
+            return;
+        }
+    }
+
+    // Otherwise search in all the pool
+    for (auto& allocator : m_pool_) {
+        if (allocator.GetBlockSize() == size) {
+            allocator.Deallocate(ptr);
+            m_pLastDealloc_ = &allocator;
+            return;
+        }
+    }
+
+    // Se siamo qui, qualcosa è andato storto
+    assert(false && "Pointer not found in any allocator!");
 }
