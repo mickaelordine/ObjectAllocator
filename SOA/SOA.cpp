@@ -21,17 +21,39 @@ public:
     void doSomething() { /* logica */ }
 };
 
+class MyNormalClassChar
+{
+private:
+    char data[10];
+
+public:
+    MyNormalClassChar() = default;
+    void doSomething() { /* logica */ }
+};
+
 
 // Classe che usa l'allocatore ottimizzato
-class MySmallClass : public SmallObject
+class MySmallClassInt : public SmallObject
 {
 private:
     int data[10];
-    /*char data[8];*/
 
 public:
-    MySmallClass() = default;
+    MySmallClassInt() = default;
     void doSomething() { }
+};
+
+
+
+// Classe che usa l'allocatore ottimizzato
+class MySmallClassChar : public SmallObject
+{
+private:
+    char data[10];
+
+public:
+    MySmallClassChar() = default;
+    void doSomething() {}
 };
 
 
@@ -53,7 +75,7 @@ int main()
     }  
     
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Time in NormalObject Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+    std::cout << "Time in NormalObjectInt Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
 
 	begin = std::chrono::steady_clock::now();
     // Cleanup
@@ -62,38 +84,73 @@ int main()
     }
 
 	end = std::chrono::steady_clock::now();
-	std::cout << "Time in NormalObject Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+	std::cout << "Time in NormalObjectInt Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
     
+
+	normal_Objects.clear(); // Clear the vector to release memory
+
+    begin = std::chrono::steady_clock::now();
+
+    std::vector<MyNormalClassChar*> normal_ObjectsChar;
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
+        normal_ObjectsChar.push_back(new MyNormalClassChar());
+    }
+
+    end = std::chrono::steady_clock::now();
+    std::cout << "Time in NormalObjChar Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+
+    begin = std::chrono::steady_clock::now();
+    // Cleanup
+    for (auto* obj : normal_ObjectsChar) {
+        delete obj;  // Deallocazione ottimizzata automatica
+    }
+    normal_ObjectsChar.clear(); // Clear the vector to release memory
+
+    end = std::chrono::steady_clock::now();
+    std::cout << "Time in NormalObjChar Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+
 
 
     //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
     begin = std::chrono::steady_clock::now();
 
-    std::vector<MySmallClass*> small_Objects;
+    std::vector<MySmallClassInt*> small_ObjectsInt;
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
-        small_Objects.push_back(new MySmallClass());
+        small_ObjectsInt.push_back(new MySmallClassInt());
     }
 
     end = std::chrono::steady_clock::now();
-    std::cout << "Time in smallObject Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+    std::cout << "Time in smallObjectInt Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
 
     begin = std::chrono::steady_clock::now();
     // Cleanup
-    for (auto* obj : small_Objects) {
+    for (auto* obj : small_ObjectsInt) {
+        delete obj;  // Deallocazione ottimizzata automatica
+    }
+	small_ObjectsInt.clear(); // Clear the vector to release memory
+
+    end = std::chrono::steady_clock::now();
+    std::cout << "Time in smallObjectInt Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+
+    //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
+    begin = std::chrono::steady_clock::now();
+
+    std::vector<MySmallClassChar*> small_ObjectsChar;
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
+        small_ObjectsChar.push_back(new MySmallClassChar());
+    }
+
+    end = std::chrono::steady_clock::now();
+    std::cout << "Time in smallObjectChar Allocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+
+    begin = std::chrono::steady_clock::now();
+    // Cleanup
+    for (auto* obj : small_ObjectsChar) {
         delete obj;  // Deallocazione ottimizzata automatica
     }
 
     end = std::chrono::steady_clock::now();
-    std::cout << "Time in smallObject Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
+    std::cout << "Time in smallObjectChar Deallocation = " << std::chrono::duration_cast<std::chrono::nanoseconds>((end - begin) / 1000).count() << "[ns]" << std::endl;
 
     return 0;
 }
-
-
-
-/*
-RIPRENDI DA qui:
-! abbiamo appena aggiustato il deallocator del fixed ed è migliorato drasticamente
-- ora bisogna vedere se è possibile  migliorare l'allocazione, adesso quello che manca controllare sono i chunk nella fase di deallocazione e allocazione.
-
-*/

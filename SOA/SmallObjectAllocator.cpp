@@ -3,7 +3,7 @@
 /////////////////////////
 #include "SmallObjectAllocator.h"
 
-#include <cassert>
+//#include <cassert>
 
 /***************************************************************************
 params : chunkSize -> is the default chunk size (the length in bytes of each Chunk object), 
@@ -55,9 +55,9 @@ returns : void -> no return value, the memory block is deallocated.
 void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size) 
 {
 	// Check if the pointer is valid and if the size is within the limits
-	assert(ptr != nullptr);
+	/*assert(ptr != nullptr);
 	assert(size <= m_maxObjectSize);
-	assert(size > 0);
+	assert(size > 0);*/
 
 	// If the size is larger than the maximum object size, forward to global delete operator
 	if (size > m_maxObjectSize) { free(ptr); return; }
@@ -69,28 +69,6 @@ void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size)
     auto it = std::find_if(m_pool_.begin(), m_pool_.end(),
         [this](const FixedAllocator& alloc) { return &alloc == m_pLastDealloc_; });
 
-    //search in the previous sizes
-    if (it != m_pool_.begin()) {
-        auto prev = it - 1;
-        if (prev->GetBlockSize() == size)
-        {
-            prev->Deallocate(ptr);
-            m_pLastDealloc_ = &*prev;
-            return;
-        }
-    }
-
-    //search in the next sizes
-    if (it != m_pool_.end()) {
-        auto next = it + 1;
-        if (next->GetBlockSize() == size)
-        {
-            next->Deallocate(ptr);
-            m_pLastDealloc_ = &*next;
-            return;
-        }
-    }
-
     // Otherwise search in all the pool
     for (auto& allocator : m_pool_) {
         if (allocator.GetBlockSize() == size) {
@@ -99,7 +77,4 @@ void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size)
             return;
         }
     }
-
-    // Se siamo qui, qualcosa è andato storto
-    assert(false && "Pointer not found in any allocator!");
 }

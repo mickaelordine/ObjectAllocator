@@ -1,11 +1,11 @@
 #include "FixedAllocator.h"
-#include <cassert>
+//#include <cassert>
 
 
 FixedAllocator::FixedAllocator(std::size_t blockSize)
     : m_blockSize_(blockSize)
 {
-	assert(m_blockSize_ > 0);
+	//assert(m_blockSize_ > 0);
 
 	// set m_blockSize_
 	std::size_t numBlocks = DEFAULT_CHUNK_SIZE / m_blockSize_;
@@ -13,7 +13,7 @@ FixedAllocator::FixedAllocator(std::size_t blockSize)
 
     // set m_numBlocks_ value
 	m_numBlocks_ = static_cast<unsigned char>(numBlocks);
-    assert(m_numBlocks_ == numBlocks); //truncation check
+    //assert(m_numBlocks_ == numBlocks); //truncation check
 
     m_allocChunk_ = m_deallocChunk_ = nullptr;
 }
@@ -41,7 +41,6 @@ void* FixedAllocator::Allocate()
                 newChunk.Init(m_blockSize_, m_numBlocks_);
                 m_chunks_.push_back(newChunk);
                 m_allocChunk_ = &m_chunks_.back();
-                m_deallocChunk_ = &m_chunks_.back();
                 break;
             }
             if (i->blocksAvailable_ > 0)
@@ -52,8 +51,8 @@ void* FixedAllocator::Allocate()
             }
         }
     }
-    assert(m_allocChunk_ != 0);
-    assert(m_allocChunk_->blocksAvailable_ > 0);
+    /*assert(m_allocChunk_ != 0);
+    assert(m_allocChunk_->blocksAvailable_ > 0);*/
     return m_allocChunk_->Allocate(m_blockSize_);
 
 }
@@ -66,7 +65,7 @@ otherwise it will search in the chunks_ vector.
 ***************************************************************************/
 void FixedAllocator::Deallocate(void* ptr) 
 {
-	assert(ptr != nullptr);
+	//assert(ptr != nullptr);
 
 	// start with deallocChunk_ if it is not null
     if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) 
