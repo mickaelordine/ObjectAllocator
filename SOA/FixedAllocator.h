@@ -9,7 +9,7 @@
 
 
 #define DEFAULT_CHUNK_SIZE 8192 //8192 //4096 // 4kb is our fixed allocator's chunk size upper limit.
-#define MAX_BLOCK_SIZE 128 //256 //128 //64 // Maximum size of a block in bytes
+#define MAX_BLOCK_SIZE 256 //128 //255 //64 // Maximum size of a block in bytes
 
 // Forward declaration of Chunk class
 struct Chunk;
@@ -40,6 +40,8 @@ private:
                         If not, a linear search occurs(and, possibly, a new Chunk is appended to the chunks_ vector). 
                         In any case, allocChunk_ is updated to point to that found or added chunk.*/
 	Chunk* m_deallocChunk_; //deallocChunk che ci dice l'indirizzo dell'ultimo chunk deallocato.
+
+    int reserve = 0;
 
 
 };

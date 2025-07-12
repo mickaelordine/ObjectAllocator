@@ -31,22 +31,31 @@ void* FixedAllocator::Allocate()
         // No available memory in this chunk 
         // Try to find one 
         Chunks::iterator i = m_chunks_.begin();
-        for (;; ++i)
+        Chunks::iterator s;
+        s._Ptr = m_allocChunk_;
+
+        for (;; ++s)
         {
-            if (i == m_chunks_.end())
+            if (s == m_chunks_.end())
             {
-                // All filled up-add a new chunk 
-				m_chunks_.reserve(m_chunks_.size() * 2); //double the capacity, not only add 1
+                if (reserve == 0)
+                {
+                    reserve = 100;
+                    // All filled up-add a new chunk 
+                    m_chunks_.reserve(m_chunks_.size() + reserve); //double the capacity, not only add 1
+                    
+                }
+                --reserve;
                 Chunk newChunk;
                 newChunk.Init(m_blockSize_, m_numBlocks_);
                 m_chunks_.push_back(newChunk);
                 m_allocChunk_ = &m_chunks_.back();
                 break;
             }
-            if (i->blocksAvailable_ > 0)
+            if (s->blocksAvailable_ > 0)
             {
                 // Found a chunk 
-                m_allocChunk_ = &*i;
+                m_allocChunk_ = &*s;
                 break;
             }
         }
