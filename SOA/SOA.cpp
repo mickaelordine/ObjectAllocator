@@ -7,7 +7,7 @@
 #include <iomanip>
 
 
-#define AMOUNT_OF_ALLOCATION 5000000 //10M allocations
+#define AMOUNT_OF_ALLOCATION 10000000 //10M allocations
 
 // MyClass.h
 #include "SmallObject.h"
@@ -232,8 +232,8 @@ void NoBulkAllocationExample()
 //MAIN FUNCTION
 int main()
 {
-	BulkAllocationExample();
-    std::cout << "\n";
 	NoBulkAllocationExample();
+    std::cout << "\n";
+	BulkAllocationExample();
     return 0;
 }

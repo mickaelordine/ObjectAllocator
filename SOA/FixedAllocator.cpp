@@ -35,8 +35,8 @@ void* FixedAllocator::Allocate()
         // Try to find one 
         
         //Chunks::iterator i = m_chunks_.begin();
-        Chunks::iterator s;
-        s._Ptr = m_allocChunk_;
+        auto s = std::find_if(m_chunks_.begin(), m_chunks_.end(),
+			[this](const Chunk& c) { return &c == m_allocChunk_; }); //fixed these to use iterators, before was throwing an assert in degug mode by pointing directly with s._Ptr_ = m_allocChunk_;
 
         for (;; ++s)
         {
@@ -86,6 +86,7 @@ void FixedAllocator::Deallocate(void* ptr)
     if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) 
     {
         m_deallocChunk_->Deallocate(ptr, m_blockSize_);
+        DoDeallocate(ptr);
         return;
     }
     
@@ -108,7 +109,7 @@ void FixedAllocator::Deallocate(void* ptr)
             {
                 next->Deallocate(ptr, m_blockSize_);
                 m_deallocChunk_ = &*next;
-                //DoDeallocate(ptr)
+                DoDeallocate(ptr);
                 return;
             }
         }
@@ -122,20 +123,69 @@ void FixedAllocator::Deallocate(void* ptr)
             {
                 prev->Deallocate(ptr, m_blockSize_);
                 m_deallocChunk_ = &*prev;
-                //DoDeallocate(ptr)
+                DoDeallocate(ptr);
                 return;
             }
         }
     }
 
     //otherwise search for the chunk
-    Chunks::iterator i = m_chunks_.begin();
-    for (;; i++) 
+    //Chunks::iterator i = m_chunks_.begin();
+    //for (;; i++) 
+    //{
+    //    if ((ptr >= i->pData_ && ptr <= i->pData_ + m_blockSize_ * m_numBlocks_)) {
+    //        i->Deallocate(ptr, m_blockSize_);
+    //        m_deallocChunk_ = &*i; // Update the last deallocated chunk
+    //        DoDeallocate(ptr);
+    //        return;
+    //    }
+    //}
+    return;
+}
+
+/***************************************************************************
+- explanation : this function check if there is at least 2 chunks complete free, if so it will release the last one, if not, swap the deallocChunk_ with the last chunk in the vector so we can check if there is at least 2 chunks free
+- params : the pointer to the memory block to be deallocated, the ptr is a block address inside a chunk, so we need to find the chunk that contains this block and deallocate it.
+- returns : void
+***************************************************************************/
+void FixedAllocator::DoDeallocate(void* ptr) 
+{
+    // call into the chunk, will adjust the inner list but won't release memory
+    //m_deallocChunk_->Deallocate(ptr, m_blockSize_);
+
+    if (m_deallocChunk_->blocksAvailable_ == m_numBlocks_)
     {
-        if ((ptr >= i->pData_ && ptr <= i->pData_ + m_blockSize_ * m_numBlocks_)) {
-            i->Deallocate(ptr, m_blockSize_);
-            m_deallocChunk_ = &*i; // Update the last deallocated chunk
+        // deallocChunk_ is completely free, should we release it? 
+
+        Chunk& lastChunk = m_chunks_.back();
+
+        if (&lastChunk == m_deallocChunk_)
+        {
+            // check if we have two last chunks empty
+
+            if (m_chunks_.size() > 1 &&
+                m_deallocChunk_->blocksAvailable_ == m_numBlocks_)
+            {
+                // Two free chunks, discard the last one
+                lastChunk.Release();
+                m_chunks_.pop_back();
+                m_allocChunk_ = m_deallocChunk_ = &m_chunks_.front();
+            }
             return;
+        }
+
+        if (lastChunk.blocksAvailable_ == m_numBlocks_)
+        {
+            // Two free blocks, discard one
+            lastChunk.Release();
+            m_chunks_.pop_back();
+            m_allocChunk_ = m_deallocChunk_;
+        }
+        else
+        {
+            // move the empty chunk to the end
+            std::swap(*m_deallocChunk_, lastChunk);
+            m_allocChunk_ = &m_chunks_.back();
         }
     }
     return;

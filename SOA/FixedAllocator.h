@@ -21,6 +21,7 @@ public:
 	~FixedAllocator() = default;
     void* Allocate();
     void Deallocate(void* ptr);
+	void DoDeallocate(void* ptr);
 
 public:
     std::size_t GetBlockSize() const { return m_blockSize_; }
