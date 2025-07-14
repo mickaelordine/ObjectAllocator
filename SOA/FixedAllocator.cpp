@@ -9,7 +9,10 @@ FixedAllocator::FixedAllocator(std::size_t blockSize)
 
 	// set m_blockSize_
 	std::size_t numBlocks = DEFAULT_CHUNK_SIZE / m_blockSize_;
-    if (numBlocks > MAX_BLOCK_SIZE) { numBlocks = MAX_BLOCK_SIZE; }
+    if (numBlocks > MAX_SMALL_OBJECT_SIZE)
+    { 
+        numBlocks = MAX_SMALL_OBJECT_SIZE;
+    }
 
     // set m_numBlocks_ value
 	m_numBlocks_ = static_cast<unsigned char>(numBlocks);
@@ -30,7 +33,8 @@ void* FixedAllocator::Allocate()
     {
         // No available memory in this chunk 
         // Try to find one 
-        Chunks::iterator i = m_chunks_.begin();
+        
+        //Chunks::iterator i = m_chunks_.begin();
         Chunks::iterator s;
         s._Ptr = m_allocChunk_;
 
@@ -42,7 +46,7 @@ void* FixedAllocator::Allocate()
                 {
                     reserve = 100;
                     // All filled up-add a new chunk 
-                    m_chunks_.reserve(m_chunks_.size() + reserve); //double the capacity, not only add 1
+                    m_chunks_.reserve(m_chunks_.size() + reserve);
                     
                 }
                 --reserve;

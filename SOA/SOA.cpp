@@ -7,7 +7,7 @@
 #include <iomanip>
 
 
-#define AMOUNT_OF_ALLOCATION 50000000 //10M allocations
+#define AMOUNT_OF_ALLOCATION 5000000 //5M allocations
 
 // MyClass.h
 #include "SmallObject.h"
@@ -69,23 +69,18 @@ public:
 
 
 
-
-
-
-
-
-int main()
+void BulkAllocationExample()
 {
     //BULK ALLOCATION
     //NORMAL ALLOCATOR USAGE EXAMPLE
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	
-	std::vector<MyNormalClass*> normal_Objects;
+
+    std::vector<MyNormalClass*> normal_Objects;
     // Usa allocatore standard (se disabilitato con #define)
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
         normal_Objects.push_back(new MyNormalClass());
-    }  
-    
+    }
+
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     auto duration = (end - begin);
     std::chrono::duration<double> seconds = duration; // conversione implicita
@@ -95,13 +90,13 @@ int main()
         << seconds.count() << "[s]" << std::endl;
 
 
-	begin = std::chrono::steady_clock::now();
+    begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : normal_Objects) {
         delete obj;  // Deallocazione ottimizzata automatica
     }
 
-	end = std::chrono::steady_clock::now();
+    end = std::chrono::steady_clock::now();
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
@@ -109,7 +104,7 @@ int main()
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
 
-	normal_Objects.clear(); // Clear the vector to release memory
+    normal_Objects.clear(); // Clear the vector to release memory
 
     begin = std::chrono::steady_clock::now();
 
@@ -162,7 +157,7 @@ int main()
     for (auto* obj : small_ObjectsInt) {
         delete obj;  // Deallocazione ottimizzata automatica
     }
-	small_ObjectsInt.clear(); // Clear the vector to release memory
+    small_ObjectsInt.clear(); // Clear the vector to release memory
 
     end = std::chrono::steady_clock::now();
     duration = (end - begin);
@@ -200,22 +195,22 @@ int main()
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
     std::cout << "\n\n";
+}
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //NO BULK ALLOCATION
-    begin = std::chrono::steady_clock::now();
-
+void NoBulkAllocationExample()
+{
+    //NOBULK ALLOCATION
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     // Usa allocatore standard (se disabilitato con #define)
-    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) 
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i)
     {
         auto* obj = new MyNormalClass();
         delete obj;  // Deallocazione ottimizzata automatica
     }
 
-    end = std::chrono::steady_clock::now();
-    duration = (end - begin);
-    seconds = duration; // conversione implicita
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    auto duration = (end - begin);
+    std::chrono::duration<double> seconds = duration; // conversione implicita
 
     std::cout << "Time in NormalObjectInt Alloc+Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
@@ -223,7 +218,7 @@ int main()
     //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
     begin = std::chrono::steady_clock::now();
 
-    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) 
+    for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i)
     {
         auto* obj = new MySmallClassInt();
         delete obj;
@@ -236,5 +231,13 @@ int main()
     std::cout << "Time in SmallObjectInt Alloc+Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
+}
+
+
+int main()
+{
+	NoBulkAllocationExample();
+    std::cout << "\n";
+	BulkAllocationExample();
     return 0;
 }
