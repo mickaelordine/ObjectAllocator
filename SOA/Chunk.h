@@ -10,6 +10,7 @@ struct Chunk
 	void Init(std::size_t blockSize, unsigned char blocks); // TOTSIZE = blockSize * blocks
 	void* Allocate(std::size_t blockSize); //our malloc()
 	void Deallocate(void* ptr, std::size_t blockSize); //our free()
+	void Release(); //relelase memory allocated in pData_
 
 	unsigned char* pData_; //È il buffer allocato che contiene tutti i blocchi di memoria gestiti da questo chunk.
 	unsigned char firstAvailableBlock_; //which hold  the index of tge first avaible block in the chunck

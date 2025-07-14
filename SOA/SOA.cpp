@@ -7,7 +7,7 @@
 #include <iomanip>
 
 
-#define AMOUNT_OF_ALLOCATION 5000000 //5M allocations
+#define AMOUNT_OF_ALLOCATION 5000000 //10M allocations
 
 // MyClass.h
 #include "SmallObject.h"
@@ -38,8 +38,6 @@ public:
     void doSomething() { /* logica */ }
 };
 
-
-// Classe che usa l'allocatore ottimizzato
 class MySmallClassInt : public SmallObject
 {
 private:
@@ -53,8 +51,6 @@ public:
 };
 
 
-
-// Classe che usa l'allocatore ottimizzato
 class MySmallClassChar : public SmallObject
 {
 private:
@@ -68,7 +64,7 @@ public:
 };
 
 
-
+//TEST METHODS
 void BulkAllocationExample()
 {
     //BULK ALLOCATION
@@ -233,11 +229,11 @@ void NoBulkAllocationExample()
         << seconds.count() << "[s]" << std::endl;
 }
 
-
+//MAIN FUNCTION
 int main()
 {
-	NoBulkAllocationExample();
-    std::cout << "\n";
 	BulkAllocationExample();
+    std::cout << "\n";
+	NoBulkAllocationExample();
     return 0;
 }

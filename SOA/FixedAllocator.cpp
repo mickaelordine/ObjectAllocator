@@ -79,6 +79,8 @@ otherwise it will search in the chunks_ vector.
 void FixedAllocator::Deallocate(void* ptr) 
 {
 	//assert(ptr != nullptr);
+	//create the corrects pointers to point at the first and last address of the chunk and start searching lower and upper cases around the last deallocation
+    const std::size_t chunkLength = m_numBlocks_ * m_blockSize_;
 
 	// start with deallocChunk_ if it is not null
     if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) 
@@ -91,28 +93,36 @@ void FixedAllocator::Deallocate(void* ptr)
     auto it = std::find_if(m_chunks_.begin(), m_chunks_.end(),
         [this](const Chunk& c) { return &c == m_deallocChunk_; });
 
-    if (it != m_chunks_.end())
+    auto next = it;
+	auto prev = it;
+
+    for (;;)
     {
-        // Check next chunk
-        auto next = it + 1;
-        if (next != m_chunks_.end() &&
-            ptr >= next->pData_ &&
-            ptr < next->pData_ + m_blockSize_ * m_numBlocks_)
+        if (next != m_chunks_.end())
         {
-            next->Deallocate(ptr, m_blockSize_);
-            m_deallocChunk_ = &*next;
-            return;
+            // Check next chunk
+            next = next + 1;
+            if (next != m_chunks_.end() &&
+                ptr >= next->pData_ &&
+                ptr < next->pData_ + m_blockSize_ * m_numBlocks_)
+            {
+                next->Deallocate(ptr, m_blockSize_);
+                m_deallocChunk_ = &*next;
+                //DoDeallocate(ptr)
+                return;
+            }
         }
 
         // Check previous chunk
-        if (it != m_chunks_.begin())
+        if (prev != m_chunks_.begin())
         {
-            auto prev = it - 1;
+            prev = prev - 1;
             if (ptr >= prev->pData_ &&
                 ptr < prev->pData_ + m_blockSize_ * m_numBlocks_)
             {
                 prev->Deallocate(ptr, m_blockSize_);
                 m_deallocChunk_ = &*prev;
+                //DoDeallocate(ptr)
                 return;
             }
         }
@@ -123,10 +133,10 @@ void FixedAllocator::Deallocate(void* ptr)
     for (;; i++) 
     {
         if ((ptr >= i->pData_ && ptr <= i->pData_ + m_blockSize_ * m_numBlocks_)) {
-			i->Deallocate(ptr, m_blockSize_);
+            i->Deallocate(ptr, m_blockSize_);
             m_deallocChunk_ = &*i; // Update the last deallocated chunk
             return;
         }
     }
-
+    return;
 }
