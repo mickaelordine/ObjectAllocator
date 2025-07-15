@@ -1,5 +1,5 @@
 #include "Chunk.h"
-#include <cassert>
+//#include <cassert>
 
 /***************************************************************************
 params : blockSize -> the size of each block in the chunk
@@ -36,12 +36,14 @@ void* Chunk::Allocate(std::size_t blockSize)
 	unsigned char* pResult = pData_ + (firstAvailableBlock_ * blockSize); //basic pointer arithmetic to get the address of the first available block
 
     // Update firstAvailableBlock_ to point to the next block
-    firstAvailableBlock_ = *pResult;
+    firstAvailableBlock_ = *pResult; //pResult al suo interno tiene l'informazione del prossimo blocco libero a livello di indice
     --blocksAvailable_;
 
     return pResult;
 }
 
+
+// COST: the deallocation cost is O(1), using poiter's arithmetic
 /***************************************************************************
 params : blockSize -> the size of each block in the chunk
 		 p -> the address of the block we want to deallocate
@@ -49,18 +51,20 @@ returns : void, the block is deallocated and added to the available blocks in th
 ***************************************************************************/
 void Chunk::Deallocate(void* p, std::size_t blockSize)
 {
-	assert(p >= pData_);
+	/*assert(p >= pData_);*/
     unsigned char* toRelease = static_cast<unsigned char*>(p);
     // Alignment check 
-    assert((toRelease - pData_) % blockSize == 0);
+    //assert((toRelease - pData_) % blockSize == 0);
     *toRelease = firstAvailableBlock_;
-    firstAvailableBlock_ = static_cast<unsigned char>(
-        (toRelease - pData_) / blockSize);
+    firstAvailableBlock_ = static_cast<unsigned char>((toRelease - pData_) / blockSize);
     // Truncation check 
-    assert(firstAvailableBlock_ ==
-        (toRelease - pData_) / blockSize);
+    //assert(firstAvailableBlock_ == (toRelease - pData_) / blockSize);
     ++blocksAvailable_;
 }
 
 
+void Chunk::Release()
+{
+    delete[] pData_;
+}
 

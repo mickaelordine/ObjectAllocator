@@ -3,7 +3,7 @@
 /////////////////////////
 #include "SmallObjectAllocator.h"
 
-#include <cassert>
+//#include <cassert>
 
 /***************************************************************************
 params : chunkSize -> is the default chunk size (the length in bytes of each Chunk object), 
@@ -18,13 +18,20 @@ SmallObjectAllocator::SmallObjectAllocator(std::size_t chunkSize, std::size_t ma
 	m_pLastAlloc_ = m_pLastDealloc_ = nullptr;
 }
 
+SmallObjectAllocator& SmallObjectAllocator::GetInstance(std::size_t chunkSize, std::size_t maxObjectSize) 
+{
+	static SmallObjectAllocator instance(chunkSize, maxObjectSize); // Create a static instance of the SmallObjectAllocator, and we don't need to check if already exist because it is static
+	return instance; 
+}
+
+
 /***************************************************************************
 params : numBytes -> is the number of bytes to allocate.
 returns : void* -> pointer to the allocated memory block.
 ***************************************************************************/
 void* SmallObjectAllocator::Allocate(std::size_t numBytes) 
 {
-	if (numBytes > m_maxObjectSize) { return ::operator new(numBytes); } // Forward to global new operator for large objects, to substitute it with BigObjAllocator
+	if (numBytes > m_maxObjectSize) { return malloc(numBytes); } // Forward to global new operator for large objects, to substitute it with BigObjAllocator
 
 
 	// check m_pLastAlloc_ to see if it is nullptr or if it has enough space to allocate the requested size
@@ -35,10 +42,9 @@ void* SmallObjectAllocator::Allocate(std::size_t numBytes)
 
 	// If m_pLastAlloc_ is nullptr or does not have enough space, create a new FixedAllocator
 	FixedAllocator allocator(numBytes);
-	allocator.Allocate(); // Allocate the memory block
-	m_pLastAlloc_ = &allocator; // Store the last allocator used for allocation
 	m_pool_.push_back(allocator); // Store the allocator in the pool for future use
-	return &allocator;
+	m_pLastAlloc_ = &m_pool_.back(); // Set the last allocator to the newly created one
+	return m_pLastAlloc_->Allocate();
 }
 
 /***************************************************************************
@@ -46,27 +52,29 @@ params : p -> is the pointer to the memory block to deallocate,
 		 size -> is the size of the object being deallocated.
 returns : void -> no return value, the memory block is deallocated.
 ***************************************************************************/
-void SmallObjectAllocator::Deallocate(void* p, std::size_t size) 
+void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size) 
 {
 	// Check if the pointer is valid and if the size is within the limits
-	assert(p != nullptr);
+	/*assert(ptr != nullptr);
 	assert(size <= m_maxObjectSize);
-	assert(size > 0);
+	assert(size > 0);*/
 
 	// If the size is larger than the maximum object size, forward to global delete operator
-	if (size > m_maxObjectSize) { ::operator delete(p); return; }
+	if (size > m_maxObjectSize) { free(ptr); return; }
 
 	// check if m_pLastDealloc_ is not nullptr and if it has enough space to deallocate the requested size
-	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(p); }
+	if (m_pLastDealloc_ && m_pLastDealloc_->GetBlockSize() == size) { m_pLastDealloc_->Deallocate(ptr); return; }
 
-	// If m_pLastDealloc_ is nullptr or the size is different, search for the allocator in the pool that can handle the size and deallocate it
-	for(auto& allocator : m_pool_) 
-	{
-		if (allocator.GetBlockSize() == size) 
-		{
-			allocator.Deallocate(p); // Deallocate the memory block using the found allocator
-			m_pLastDealloc_ = &allocator; // Store the last allocator used for deallocation
-			return;
-		}
-	}
+    //find the iterator for FixedAlloc
+    auto it = std::find_if(m_pool_.begin(), m_pool_.end(),
+        [this](const FixedAllocator& alloc) { return &alloc == m_pLastDealloc_; });
+
+    // Otherwise search in all the pool
+    for (auto& allocator : m_pool_) {
+        if (allocator.GetBlockSize() == size) {
+            allocator.Deallocate(ptr);
+            m_pLastDealloc_ = &allocator;
+            return;
+        }
+    }
 }

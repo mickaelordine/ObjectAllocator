@@ -1,13 +1,18 @@
+//////////////////////////////////////////////
+//              FixedAllocator.h            //
+//////////////////////////////////////////////
+
 #pragma once
 #include <cstddef>
 #include <vector>
 #include "Chunk.h"
 
-#define DEFAULT_CHUNK_SIZE 4096 // 4kb is our fixed allocator's chunk size upper limit.
-#define MAX_BLOCK_SIZE 1024 // Maximum size of a block in bytes
+
+#define DEFAULT_CHUNK_SIZE 4096 //8192 //4096 // 4kb is our fixed allocator's chunk size upper limit.
+#define MAX_SMALL_OBJECT_SIZE 64 //128 //255 //64 // Maximum size of a block in bytes
 
 // Forward declaration of Chunk class
-class Chunk;
+struct Chunk;
 
 class FixedAllocator
 {
@@ -16,6 +21,7 @@ public:
 	~FixedAllocator() = default;
     void* Allocate();
     void Deallocate(void* ptr);
+	void DoDeallocate(void* ptr);
 
 public:
     std::size_t GetBlockSize() const { return m_blockSize_; }
@@ -35,6 +41,8 @@ private:
                         If not, a linear search occurs(and, possibly, a new Chunk is appended to the chunks_ vector). 
                         In any case, allocChunk_ is updated to point to that found or added chunk.*/
 	Chunk* m_deallocChunk_; //deallocChunk che ci dice l'indirizzo dell'ultimo chunk deallocato.
+
+    int reserve = 0;
 
 
 };
