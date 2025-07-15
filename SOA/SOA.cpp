@@ -5,9 +5,10 @@
 #include <time.h>
 #include <chrono>
 #include <iomanip>
+#include "MM_Macros.h"
 
 
-#define AMOUNT_OF_ALLOCATION 10000000 //10M allocations
+#define AMOUNT_OF_ALLOCATION 5000000 //10M allocations
 
 // MyClass.h
 #include "SmallObject.h"
@@ -38,7 +39,7 @@ public:
     void doSomething() { /* logica */ }
 };
 
-class MySmallClassInt : public SmallObject
+class MySmallClassInt
 {
 private:
     int a;
@@ -47,11 +48,11 @@ private:
 
 public:
     MySmallClassInt() = default;
+    ~MySmallClassInt() = default;
     void doSomething() { }
 };
 
-
-class MySmallClassChar : public SmallObject
+class MySmallClassChar
 {
 private:
     char a;
@@ -60,6 +61,7 @@ private:
 
 public:
     MySmallClassChar() = default;
+    ~MySmallClassChar() = default;
     void doSomething() {}
 };
 
@@ -138,7 +140,7 @@ void BulkAllocationExample()
 
     std::vector<MySmallClassInt*> small_ObjectsInt;
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
-        small_ObjectsInt.push_back(new MySmallClassInt());
+        small_ObjectsInt.push_back(MM_NEW(MySmallClassInt));
     }
 
     end = std::chrono::steady_clock::now();
@@ -151,7 +153,7 @@ void BulkAllocationExample()
     begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : small_ObjectsInt) {
-        delete obj;  // Deallocazione ottimizzata automatica
+        MM_DELETE(obj, sizeof(MySmallClassInt));
     }
     small_ObjectsInt.clear(); // Clear the vector to release memory
 
@@ -162,12 +164,14 @@ void BulkAllocationExample()
     std::cout << "Time in SmallObjInt Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
+
+
     //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
     begin = std::chrono::steady_clock::now();
 
     std::vector<MySmallClassChar*> small_ObjectsChar;
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
-        small_ObjectsChar.push_back(new MySmallClassChar());
+        small_ObjectsChar.push_back(MM_NEW(MySmallClassChar));
     }
 
     end = std::chrono::steady_clock::now();
@@ -180,7 +184,7 @@ void BulkAllocationExample()
     begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : small_ObjectsChar) {
-        delete obj;  // Deallocazione ottimizzata automatica
+        MM_DELETE(obj, sizeof(MySmallClassChar)); 
     }
 
     end = std::chrono::steady_clock::now();
@@ -216,8 +220,8 @@ void NoBulkAllocationExample()
 
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i)
     {
-        auto* obj = new MySmallClassInt();
-        delete obj;
+        auto* obj = MM_NEW(MySmallClassInt);
+        MM_DELETE(obj, sizeof(MySmallClassInt));
     }
 
     end = std::chrono::steady_clock::now();

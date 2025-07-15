@@ -13,8 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\SOA">
-      <UniqueIdentifier>{1203705f-f5e4-4d45-901c-24c3beaa15f6}</UniqueIdentifier>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{0aadf843-b290-46f4-81c1-94adb7cff5ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{f3df6c47-02ae-48be-8c6e-cc4fbb4ca604}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +33,9 @@
     <ClCompile Include="SmallObjectAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MemoryManager.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chunk.h">
@@ -43,6 +49,15 @@
     </ClInclude>
     <ClInclude Include="SmallObject.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryManager.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="MM_Macros.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="MM_GlobalOverride.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

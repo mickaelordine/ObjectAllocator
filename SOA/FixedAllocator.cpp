@@ -83,7 +83,7 @@ void FixedAllocator::Deallocate(void* ptr)
     const std::size_t chunkLength = m_numBlocks_ * m_blockSize_;
 
 	// start with deallocChunk_ if it is not null
-    if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_)) 
+    if (m_deallocChunk_ && (ptr >= m_deallocChunk_->pData_ && ptr <= m_deallocChunk_->pData_ + m_blockSize_ * m_numBlocks_))
     {
         m_deallocChunk_->Deallocate(ptr, m_blockSize_);
         DoDeallocate(ptr);
@@ -129,17 +129,6 @@ void FixedAllocator::Deallocate(void* ptr)
         }
     }
 
-    //otherwise search for the chunk
-    //Chunks::iterator i = m_chunks_.begin();
-    //for (;; i++) 
-    //{
-    //    if ((ptr >= i->pData_ && ptr <= i->pData_ + m_blockSize_ * m_numBlocks_)) {
-    //        i->Deallocate(ptr, m_blockSize_);
-    //        m_deallocChunk_ = &*i; // Update the last deallocated chunk
-    //        DoDeallocate(ptr);
-    //        return;
-    //    }
-    //}
     return;
 }
 
