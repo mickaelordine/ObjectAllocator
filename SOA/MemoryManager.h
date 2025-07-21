@@ -1,6 +1,7 @@
 #pragma once
 #include "SmallObjectAllocator.h"
 
+
 class MemoryManager
 {
 public:

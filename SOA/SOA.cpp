@@ -87,7 +87,6 @@ void BulkAllocationExample()
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
 
-
     begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : normal_Objects) {

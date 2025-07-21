@@ -20,7 +20,6 @@ private:
 	FixedAllocator* m_pLastAlloc_; //last fixed used for allocation
 	FixedAllocator* m_pLastDealloc_; //last fixed used for deallocation
 	std::size_t m_defaultChunkSize, m_maxObjectSize;
-	/*std::map<std::size_t, std::size_t> map;*/
-	
+		
 };
 
