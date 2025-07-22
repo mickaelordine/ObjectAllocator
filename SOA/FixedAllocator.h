@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <vector>
 #include "Chunk.h"
+#include "SystemAllocator.h"
 
 
 #define DEFAULT_CHUNK_SIZE 4096 //8192 //4096 // 4kb is our fixed allocator's chunk size upper limit.
@@ -32,7 +33,7 @@ private:
     std::size_t m_blockSize_;   //Size di ogni blocco
     unsigned char m_numBlocks_; //Numero di blocchi per chunk
     
-    typedef std::vector<Chunk> Chunks; //Un vettore di Chunk che usiamo per tenere dinamicamente la dimensione dei chunk aggiornata nello Heap.
+    typedef std::vector<Chunk, SystemAllocator<Chunk>> Chunks; //Un vettore di Chunk che usiamo per tenere dinamicamente la dimensione dei chunk aggiornata nello Heap.
     Chunks m_chunks_;
     Chunk* m_allocChunk_; /*To achieve a speedy lookup, FixedAllocator does not iterate through chunks_ looking for a space for each allocation.
                         Instead, it holds a pointer to the last chunk that was used for an allocation(allocChunk_).
