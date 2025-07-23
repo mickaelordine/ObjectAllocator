@@ -8,7 +8,7 @@
 #include <iomanip>
 
 #define USE_MM_POWAAAA
-#define AMOUNT_OF_ALLOCATION 5000000
+#define AMOUNT_OF_ALLOCATION 10000000
 
 // MyClass.h
 #include "SmallObject.h"
@@ -241,8 +241,5 @@ int main()
 	NoBulkAllocationExample();
     std::cout << "\n";
 	BulkAllocationExample();
-	/*std::vector<int, SystemAllocator<int>> vec;
-    std::vector<int, std::allocator<int>> vec1;*/
-
     return 0;
 }

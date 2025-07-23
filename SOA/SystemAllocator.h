@@ -20,4 +20,26 @@ public:
     {
         std::free(p);
     }
+
+	bool operator==(const SystemAllocator&) const noexcept
+	{
+		return true;
+	}
+
+	bool operator!=(const SystemAllocator& other) const noexcept
+	{
+		return !(*this == other);
+	}
+
+	template<typename U>
+	bool operator==(const SystemAllocator<U>&) const noexcept
+	{
+		return true;
+	}
+
+	template<typename U>
+	bool operator!=(const SystemAllocator<U>& other) const noexcept
+	{
+		return !(*this == other);
+	}
 };

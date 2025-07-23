@@ -22,10 +22,6 @@ SmallObjectAllocator& SmallObjectAllocator::GetInstance(std::size_t chunkSize, s
 {
 	static SmallObjectAllocator instance(chunkSize, maxObjectSize); // Create a static instance of the SmallObjectAllocator, and we don't need to check if already exist because it is static
 	return instance;
-	//void* p = malloc(sizeof(SmallObjectAllocator)); // Allocate memory for the instance
-	//if (!p) { throw std::bad_alloc(); } // Check if memory allocation was successful
-	//SmallObjectAllocator* ptr = new(p) SmallObjectAllocator(chunkSize, maxObjectSize);
-	//return *ptr;
 }
 
 

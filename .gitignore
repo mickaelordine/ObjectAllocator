@@ -18,3 +18,7 @@ build/
 # File temporanei
 *.tmp
 *~
+
+#Build
+x64/Debug/
+x64/Release/
