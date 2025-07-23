@@ -21,7 +21,7 @@ SmallObjectAllocator::SmallObjectAllocator(std::size_t chunkSize, std::size_t ma
 SmallObjectAllocator& SmallObjectAllocator::GetInstance(std::size_t chunkSize, std::size_t maxObjectSize) 
 {
 	static SmallObjectAllocator instance(chunkSize, maxObjectSize); // Create a static instance of the SmallObjectAllocator, and we don't need to check if already exist because it is static
-	return instance; 
+	return instance;
 }
 
 

@@ -1,11 +1,7 @@
 PROJECT FOR ADVANCED C++ 
 
-in this project i need to implement a SmallObjectAllocator following the idea of Andrei Alexandrescu in his Book Modern C++ Design.
+in this project i implemented a SmallObjectAllocator following the idea of Andrei Alexandrescu in his Book Modern C++ Design.
 
+You can use the SOA with macros using the wrapper MM_Macros.h
 
-##TODO
-
-- guarda per aggiustare l'allocazione con il concetto di doppia lista per chunk disponibili e occupati
-- per ora il progetto funziona bene se siamo sotto le deallocazione del 5Milioni.
-- nel fixed allocator è cambiato il fatto che ora 
 
