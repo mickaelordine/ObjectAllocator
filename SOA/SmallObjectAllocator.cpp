@@ -72,11 +72,6 @@ returns : void -> no return value, the memory block is deallocated.
 ***************************************************************************/
 void SmallObjectAllocator::Deallocate(void* ptr, std::size_t size) 
 {
-	// Check if the pointer is valid and if the size is within the limits
-	/*assert(ptr != nullptr);
-	assert(size <= m_maxObjectSize);
-	assert(size > 0);*/
-
 	// If the size is larger than the maximum object size, forward to global delete operator
 	if (size > m_maxObjectSize) { free(ptr); return; }
 

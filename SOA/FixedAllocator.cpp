@@ -62,8 +62,6 @@ void* FixedAllocator::Allocate()
             }
         }
     }
-    /*assert(m_allocChunk_ != 0);
-    assert(m_allocChunk_->blocksAvailable_ > 0);*/
     return m_allocChunk_->Allocate(m_blockSize_);
 
 }
@@ -76,7 +74,6 @@ otherwise it will search in the chunks_ vector.
 ***************************************************************************/
 void FixedAllocator::Deallocate(void* ptr) 
 {
-	//assert(ptr != nullptr);
 	//create the corrects pointers to point at the first and last address of the chunk and start searching lower and upper cases around the last deallocation
     const std::size_t chunkLength = m_numBlocks_ * m_blockSize_;
 
@@ -138,8 +135,6 @@ void FixedAllocator::Deallocate(void* ptr)
 void FixedAllocator::DoDeallocate(void* ptr) 
 {
     // call into the chunk, will adjust the inner list but won't release memory
-    //m_deallocChunk_->Deallocate(ptr, m_blockSize_);
-
     if (m_deallocChunk_->blocksAvailable_ == m_numBlocks_)
     {
         // deallocChunk_ is completely free, should we release it? 

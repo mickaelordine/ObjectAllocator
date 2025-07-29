@@ -1,3 +1,7 @@
+//////////////////////////////////////////////
+//              MemoryManager.h             //
+//////////////////////////////////////////////
+
 #pragma once
 #include "SmallObjectAllocator.h"
 #include <utility> // per std::forward

@@ -54,11 +54,9 @@ void Chunk::Deallocate(void* p, std::size_t blockSize)
 	/*assert(p >= pData_);*/
     unsigned char* toRelease = static_cast<unsigned char*>(p);
     // Alignment check 
-    //assert((toRelease - pData_) % blockSize == 0);
     *toRelease = firstAvailableBlock_;
     firstAvailableBlock_ = static_cast<unsigned char>((toRelease - pData_) / blockSize);
     // Truncation check 
-    //assert(firstAvailableBlock_ == (toRelease - pData_) / blockSize);
     ++blocksAvailable_;
 }
 
