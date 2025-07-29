@@ -1,5 +1,6 @@
 #include "FixedAllocator.h"
-//#include <cassert>
+#include <cassert>
+#include <iostream>
 
 
 FixedAllocator::FixedAllocator(std::size_t blockSize)
@@ -31,12 +32,9 @@ void* FixedAllocator::Allocate()
 {
     if (m_allocChunk_ == nullptr || m_allocChunk_->blocksAvailable_ == 0)
     {
-        // No available memory in this chunk 
-        // Try to find one 
-        
-        //Chunks::iterator i = m_chunks_.begin();
+        // No available memory in this chunk, Try to find one
         auto s = std::find_if(m_chunks_.begin(), m_chunks_.end(),
-			[this](const Chunk& c) { return &c == m_allocChunk_; }); //fixed these to use iterators, before was throwing an assert in degug mode by pointing directly with s._Ptr_ = m_allocChunk_;
+			[this](const Chunk& c) { return &c == m_allocChunk_; });
 
         for (;; ++s)
         {
@@ -45,21 +43,21 @@ void* FixedAllocator::Allocate()
                 if (reserve == 0)
                 {
                     reserve = 100;
-                    // All filled up-add a new chunk 
                     m_chunks_.reserve(m_chunks_.size() + reserve);
-                    
                 }
                 --reserve;
                 Chunk newChunk;
                 newChunk.Init(m_blockSize_, m_numBlocks_);
                 m_chunks_.push_back(newChunk);
                 m_allocChunk_ = &m_chunks_.back();
+                m_deallocChunk_ = &m_chunks_.back();
                 break;
             }
             if (s->blocksAvailable_ > 0)
             {
                 // Found a chunk 
                 m_allocChunk_ = &*s;
+				m_deallocChunk_ = &*s; //added this to avoid access violation when deallocating, if the m_chunks get reallocated we follow the new point in the memory
                 break;
             }
         }
@@ -128,7 +126,7 @@ void FixedAllocator::Deallocate(void* ptr)
             }
         }
     }
-
+    assert(0);
     return;
 }
 

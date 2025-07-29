@@ -134,7 +134,6 @@
     <ClInclude Include="FixedAllocator.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="MM_GlobalOverride.h" />
-    <ClInclude Include="SmallObject.h" />
     <ClInclude Include="SmallObjectAllocator.h" />
     <ClInclude Include="SystemAllocator.h" />
   </ItemGroup>

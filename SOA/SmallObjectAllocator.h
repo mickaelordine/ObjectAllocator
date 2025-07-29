@@ -4,6 +4,7 @@
 
 #pragma once
 #include <cstddef>
+#include <deque>
 #include <map>
 #include "FixedAllocator.h"
 class SmallObjectAllocator
@@ -11,7 +12,7 @@ class SmallObjectAllocator
 public:
     SmallObjectAllocator(std::size_t chunkSize,std::size_t maxObjectSize);
 	~SmallObjectAllocator() = default;
-	static SmallObjectAllocator& GetInstance(std::size_t chunkSize = 4096, std::size_t maxObjectSize = 64); //singleton instance of the allocator, we can pass the chunk size and max object size to the constructor
+	//static SmallObjectAllocator& GetInstance(std::size_t chunkSize = 4096, std::size_t maxObjectSize = 64); //singleton instance of the allocator, we can pass the chunk size and max object size to the constructor
     void* Allocate(std::size_t numBytes);
 	void Deallocate(void* p, std::size_t size); //the interesting thing here is that we pass a s param the size of the object to deallocate, the standard free() doesn't do that
 

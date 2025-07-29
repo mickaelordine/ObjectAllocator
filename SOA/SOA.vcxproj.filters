@@ -47,9 +47,6 @@
     <ClInclude Include="SmallObjectAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SmallObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MemoryManager.h">
       <Filter>Header Files\Utils</Filter>
     </ClInclude>

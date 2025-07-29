@@ -7,11 +7,10 @@
 #include <chrono>
 #include <iomanip>
 
-#define USE_MM_POWAAAA
+//#define USE_MM_POWAAAA
 #define AMOUNT_OF_ALLOCATION 10000000
 
 // MyClass.h
-#include "SmallObject.h"
 #include "MM_GlobalOverride.h"
 #include "MemoryManager.h"
 #include "SystemAllocator.h"
@@ -52,8 +51,7 @@ private:
 
 public:
     MySmallClassInt() = default;
-    ~MySmallClassInt() = default;
-    void doSomething() { }
+    void doSomething() { /* logica */ }
 };
 
 class MySmallClassChar
@@ -65,8 +63,7 @@ private:
 
 public:
     MySmallClassChar() = default;
-    ~MySmallClassChar() = default;
-    void doSomething() {}
+    void doSomething() { /* logica */ }
 };
 
 //TEST METHODS
@@ -86,7 +83,7 @@ void BulkAllocationExample()
     auto duration = (end - begin);
     std::chrono::duration<double> seconds = duration; // conversione implicita
 
-    std::cout << "Time in NormalObjectInt Allocation = "
+    std::cout << "Time in STDNormalObjectInt Allocation = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
 
@@ -100,7 +97,7 @@ void BulkAllocationExample()
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in NormalObjectInt Dealloc = "
+    std::cout << "Time in STDNormalObjectInt Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
 
@@ -117,7 +114,7 @@ void BulkAllocationExample()
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in NormalObjChar Alloc = "
+    std::cout << "Time in STDNormalObjChar Alloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
     begin = std::chrono::steady_clock::now();
@@ -131,31 +128,32 @@ void BulkAllocationExample()
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in NormalObjectInt Dealloc = "
+    std::cout << "Time in STDNormalObjectInt Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
     std::cout << "\n\n";
 
 
-    //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
+    ////SMALL OBJECT ALLOCATOR USAGE EXAMPLE
     begin = std::chrono::steady_clock::now();
 
     std::vector<MySmallClassInt*, SystemAllocator<MySmallClassInt*>> small_ObjectsInt;
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
-        small_ObjectsInt.push_back(new(MySmallClassInt));
+        small_ObjectsInt.push_back((MySmallClassInt*)MMA::MM_NEW(sizeof(MySmallClassInt)));
     }
 
     end = std::chrono::steady_clock::now();
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in SmallObjInt Alloc = "
+    std::cout << "Time in MySmallObjInt Alloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
+
     begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : small_ObjectsInt) {
-        delete(obj);
+        MMA::MM_DELETE(obj, sizeof(MySmallClassInt));
     }
     small_ObjectsInt.clear(); // Clear the vector to release memory
 
@@ -163,7 +161,7 @@ void BulkAllocationExample()
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in SmallObjInt Dealloc = "
+    std::cout << "Time in MySmallObjInt Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
 
@@ -173,27 +171,27 @@ void BulkAllocationExample()
 
     std::vector<MySmallClassChar*, SystemAllocator<MySmallClassChar*>> small_ObjectsChar;
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i) {
-        small_ObjectsChar.push_back(new(MySmallClassChar));
+        small_ObjectsChar.push_back((MySmallClassChar*)MMA::MM_NEW(sizeof(MySmallClassChar)));
     }
 
     end = std::chrono::steady_clock::now();
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in SmallObjChar Alloc = "
+    std::cout << "Time in MySmallObjChar Alloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
     begin = std::chrono::steady_clock::now();
     // Cleanup
     for (auto* obj : small_ObjectsChar) {
-        delete(obj); 
+        MMA::MM_DELETE(obj, sizeof(MySmallClassChar));
     }
 
     end = std::chrono::steady_clock::now();
     duration = (end - begin);
     seconds = duration; // conversione implicita
 
-    std::cout << "Time in SmallObjChar Dealloc = "
+    std::cout << "Time in MySmallObjChar Dealloc = "
         << std::fixed << std::setprecision(3) // stampa con 3 decimali
         << seconds.count() << "[s]" << std::endl;
     std::cout << "\n\n";
@@ -211,35 +209,34 @@ void NoBulkAllocationExample()
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     auto duration = (end - begin);
-    std::chrono::duration<double> seconds = duration; // conversione implicita
+    std::chrono::duration<double> seconds = duration;
 
-    std::cout << "Time in NormalObjectInt Alloc+Dealloc = "
-        << std::fixed << std::setprecision(3) // stampa con 3 decimali
+    std::cout << "Time in STDNormalObjectInt Alloc+Dealloc = "
+        << std::fixed << std::setprecision(3)
         << seconds.count() << "[s]" << std::endl;
     //SMALL OBJECT ALLOCATOR USAGE EXAMPLE
     begin = std::chrono::steady_clock::now();
 
     for (int i = 0; i < AMOUNT_OF_ALLOCATION; ++i)
     {
-        auto* obj = new(MySmallClassInt);
-        delete(obj);
+        auto* obj = MMA::MM_NEW(sizeof(MySmallClassInt));
+        MMA::MM_DELETE(obj, sizeof(MySmallClassInt));
     }
 
     end = std::chrono::steady_clock::now();
     duration = (end - begin);
-    seconds = duration; // conversione implicita
+    seconds = duration;
 
-    std::cout << "Time in SmallObjectInt Alloc+Dealloc = "
-        << std::fixed << std::setprecision(3) // stampa con 3 decimali
+    std::cout << "Time in MySmallObjectInt Alloc+Dealloc = "
+        << std::fixed << std::setprecision(3)
         << seconds.count() << "[s]" << std::endl;
 }
 
 //MAIN FUNCTION
 int main()
 {
-    
-	NoBulkAllocationExample();
-    std::cout << "\n";
 	BulkAllocationExample();
+    std::cout << "\n";
+	NoBulkAllocationExample();
     return 0;
 }

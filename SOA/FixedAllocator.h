@@ -9,7 +9,7 @@
 #include "SystemAllocator.h"
 
 
-#define DEFAULT_CHUNK_SIZE 4096 //8192 //4096 // 4kb is our fixed allocator's chunk size upper limit.
+#define DEFAULT_CHUNK_SIZE 4096 //8192 //4096 //2048 // 4kb is our fixed allocator's chunk size upper limit.
 #define MAX_SMALL_OBJECT_SIZE 255 //128 //255 //64 // Maximum size of a block in bytes
 
 // Forward declaration of Chunk class

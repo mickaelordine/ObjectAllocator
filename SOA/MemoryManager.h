@@ -33,20 +33,6 @@ namespace MMA
     }
 
     template<typename T>
-    T* MM_NEW()
-    {
-        void* memory = MM_MALLOC(sizeof(T));
-        return new (memory) T();
-    }
-
-    template<typename T, typename... Args>
-    T* MM_NEW(Args&&... args)
-    {
-        void* p = MM_MALLOC(sizeof(T));
-        return new(p) T(std::forward<Args>(args)...);
-    }
-
-    template<typename T>
     T* MM_NEW_ARR(std::size_t count)
     {
         if (count == 0) return nullptr;
@@ -65,23 +51,13 @@ namespace MMA
     template<typename T, typename F>
     void MM_DELETE(T* ptr, F size)
     {
-        if (ptr)
-        {
-            ptr->~T();
-            MM_FREE(ptr, sizeof(F));
-
-        }
+        MM_FREE(ptr, size);
     }
 
     template<typename T>
     void MM_DELETE(T* ptr)
     {
-        if (ptr)
-        {
-            ptr->~T();
-            MM_FREE(ptr, sizeof(T));
-
-        }
+        MM_FREE(ptr, sizeof(T));
     }
 
     template<typename T>
@@ -104,5 +80,26 @@ namespace MMA
     void* MM_MALLOC(T size)
     {
         return MMA::MemoryManager::getInstance().AllocateRaw(size);
+    }
+
+    template<typename T>
+    T* MM_NEW()
+    {
+        void* memory = MM_MALLOC(sizeof(T));
+        return new (memory) T();
+    }
+
+    template<typename T, typename... Args>
+    T* MM_NEW(Args&&... args)
+    {
+        void* p = MM_MALLOC(sizeof(T));
+        return new(p) T(std::forward<Args>(args)...);
+    }
+
+    template<typename T>
+    void* MM_NEW(T size)
+    {
+        void* memory = MM_MALLOC((size_t) size);
+        return new (memory) T();
     }
 }
