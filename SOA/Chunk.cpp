@@ -1,4 +1,5 @@
 #include "Chunk.h"
+#include <cstdlib>
 //#include <cassert>
 
 /***************************************************************************
@@ -8,7 +9,7 @@ returns : void
 ***************************************************************************/
 void Chunk::Init(std::size_t blockSize, unsigned char blocks)
 {
-    pData_ = new unsigned char[blockSize * blocks];
+    pData_ = (unsigned char*)malloc(blockSize * blocks);
     firstAvailableBlock_ = 0;
     blocksAvailable_ = blocks;
     unsigned char i = 0;

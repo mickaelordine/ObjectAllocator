@@ -30,6 +30,13 @@ namespace MMA
     };
 
 
+    // TEMPLATES
+    template<typename T>
+    void MM_FREE(T* ptr)
+    {
+        MMA::MemoryManager::getInstance().DeallocateRaw(ptr, sizeof(T));
+    }
+
     template<typename T, typename F>
     void MM_FREE(T* ptr, F size)
     {
@@ -49,6 +56,28 @@ namespace MMA
         {
             new(array + i) T();
         }
+        return array;
+    }
+
+    template<typename T, typename F>
+    T* MM_NEW_ARR(T type, F count)
+    {
+        if (count == 0) return nullptr;
+
+        // Alloc: spazio per count + header
+        std::size_t totalSize = sizeof(T) * count;
+        void* p = MM_MALLOC(totalSize);
+
+        // Salviamo count nell’header
+        *static_cast<std::size_t*>(p) = count;
+
+        // Puntatore reale all’array
+        T* array = reinterpret_cast<T*>(static_cast<char*>(p) + sizeof(std::size_t));
+
+        // Placement new per ogni elemento
+        for (std::size_t i = 0; i < count; ++i)
+            new(array + i) T();
+
         return array;
     }
 
@@ -106,4 +135,47 @@ namespace MMA
         void* memory = MM_MALLOC((size_t) size);
         return new (memory) T();
     }
+
+    // MACROS
+    /*#define MM_MALLOC(size) \
+        MMA::MemoryManager::getInstance().AllocateRaw(size)
+
+    #define MM_FREE(ptr, size) \
+        MMA::MemoryManager::getInstance().DeallocateRaw(ptr, size)
+
+    #define MM_NEW(T) \
+        new (MMA::MemoryManager::getInstance().AllocateRaw(T))
+
+    #define MM_DELETE(ptr, T)           \
+        do {                            \
+            if (ptr) {                  \
+                (ptr)->~T();            \
+                MMA::MemoryManager::getInstance().DeallocateRaw(ptr, sizeof(T)); \
+            }                           \
+        } while (0)
+
+    #define MM_NEW_ARR(T, count)                                \
+        ([](std::size_t n) -> T* {                              \
+            if (n == 0) return nullptr;                         \
+            std::size_t totalSize = sizeof(T) * n + sizeof(std::size_t); \
+            void* p = MMA::MemoryManager::getInstance().AllocateRaw(totalSize); \
+            *static_cast<std::size_t*>(p) = n;                  \
+            T* array = reinterpret_cast<T*>(static_cast<char*>(p) + sizeof(std::size_t)); \
+            for (std::size_t i = 0; i < n; ++i)                 \
+                new(array + i) T();                             \
+            return array;                                       \
+        })(count)
+
+    #define MM_DELETE_ARR(ptr, T)                               \
+        do {                                                    \
+            if (ptr) {                                          \
+                char* basePtr = reinterpret_cast<char*>(ptr) - sizeof(std::size_t); \
+                std::size_t count = *reinterpret_cast<std::size_t*>(basePtr); \
+                for (std::size_t i = count; i > 0; --i)         \
+                    ptr[i - 1].~T();                            \
+                std::size_t totalSize = sizeof(T) * count + sizeof(std::size_t); \
+                MMA::MemoryManager::getInstance().DeallocateRaw(basePtr, totalSize); \
+            }                                                   \
+        } while (0)*/
+
 }
