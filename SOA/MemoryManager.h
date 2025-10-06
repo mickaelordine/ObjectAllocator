@@ -29,6 +29,33 @@ namespace MMA
         SmallObjectAllocator m_soa;
     };
 
+    template<typename T>
+    void* MM_MALLOC(T size)
+    {
+        return MMA::MemoryManager::getInstance().AllocateRaw(size);
+    }
+
+    template<typename T>
+    T* MM_NEW()
+    {
+        void* memory = MM_MALLOC(sizeof(T));
+        return new (memory) T();
+    }
+
+    template<typename T, typename... Args>
+    T* MM_NEW(Args&&... args)
+    {
+        void* p = MM_MALLOC(sizeof(T));
+        return new(p) T(std::forward<Args>(args)...);
+    }
+
+    template<typename T>
+    void* MM_NEW(T size)
+    {
+        void* memory = MM_MALLOC((size_t) size);
+        return new (memory) T();
+    }
+
 
     // TEMPLATES
     template<typename T>
@@ -68,10 +95,10 @@ namespace MMA
         std::size_t totalSize = sizeof(T) * count;
         void* p = MM_MALLOC(totalSize);
 
-        // Salviamo count nell’header
+        // Salviamo count nellï¿½header
         *static_cast<std::size_t*>(p) = count;
 
-        // Puntatore reale all’array
+        // Puntatore reale allï¿½array
         T* array = reinterpret_cast<T*>(static_cast<char*>(p) + sizeof(std::size_t));
 
         // Placement new per ogni elemento
@@ -93,48 +120,23 @@ namespace MMA
         MM_FREE(ptr, sizeof(T));
     }
 
-    template<typename T>
-    void MM_DELETE_ARR(T* ptr)
+    /*template<typename t>
+    void mm_delete_arr(t* ptr)
     {
         if (ptr)
         {
-            char* basePtr = reinterpret_cast<char*>(ptr) - sizeof(std::size_t);
-            std::size_t count = *reinterpret_cast<std::size_t*>(basePtr);
+            char* baseptr = reinterpret_cast<char*>(ptr) - sizeof(std::size_t);
+            std::size_t count = *reinterpret_cast<std::size_t*>(baseptr);
             for (std::size_t i = count; i > 0; --i)
             {
-                ptr[i - 1].~T();
+                ptr[i - 1].~t();
             }
-            std::size_t totalSize = sizeof(T) * count + sizeof(std::size_t);
-            MM_FREE(basePtr, totalSize);
+            std::size_t totalsize = sizeof(t) * count + sizeof(std::size_t);
+            mm_free(baseptr, totalsize);
         }
-    }
+    }*/
 
-    template<typename T>
-    void* MM_MALLOC(T size)
-    {
-        return MMA::MemoryManager::getInstance().AllocateRaw(size);
-    }
-
-    template<typename T>
-    T* MM_NEW()
-    {
-        void* memory = MM_MALLOC(sizeof(T));
-        return new (memory) T();
-    }
-
-    template<typename T, typename... Args>
-    T* MM_NEW(Args&&... args)
-    {
-        void* p = MM_MALLOC(sizeof(T));
-        return new(p) T(std::forward<Args>(args)...);
-    }
-
-    template<typename T>
-    void* MM_NEW(T size)
-    {
-        void* memory = MM_MALLOC((size_t) size);
-        return new (memory) T();
-    }
+    
 
     // MACROS
     /*#define MM_MALLOC(size) \

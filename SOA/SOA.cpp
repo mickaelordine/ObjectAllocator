@@ -8,7 +8,7 @@
 #include <iomanip>
 
 //#define USE_MM_POWAAAA
-#define AMOUNT_OF_ALLOCATION 10000000
+#define AMOUNT_OF_ALLOCATION 50000000
 
 // MyClass.h
 #include "MM_GlobalOverride.h"
@@ -19,10 +19,10 @@
 class MyNormalClass
 {
 private:
-    int a;
-    int b;
-    int c;
-    
+    int a; // 4 bytes
+    int b; // 4 bytes
+    int c; // 4 bytes
+    //sizeof() = 12 || alignedof() = 4
 
 public:
     MyNormalClass() = default;
